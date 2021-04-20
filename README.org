@@ -1,0 +1,11 @@
+#+title: Demo project em Lean
+
+
+Use `lean-project` do clone . See https://leanprover-community.github.io
+
+1. instalar lean-project
+2. clonar repo com
+
+#+begin_src bash
+leanproject get git@github.com:emap-aa/demo-lean.git
+#+end_src
