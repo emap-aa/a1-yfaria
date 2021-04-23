@@ -636,19 +636,39 @@ def inits {a : Type} : list a → list (list a)
 
 def segments: list ℕ → list (list ℕ) := concat ∘ map inits ∘ tails
 
+def scanr {a b : Type} [inhabited b]: (a → b → b) → b → list a → list b
+| f e [] := [e]
+| f e (x :: xs) := f x (list.head $ scanr f e xs) :: (scanr f e xs)
+ 
+#check list.head
+
 #check map list.sum ∘ segments
 
-#check maximum ∘ map list.sum ∘ segments
+#check maximum ∘ (map list.sum ∘ segments) 
 
--- Não sei o erro:
-def mss₁ (xs : list ℕ) : list ℕ → ℕ := maximum $ map list.sum $ segments xs
+#reduce list.maximum $ ((map list.sum ∘ segments)) [1,5,6,9,10]
 
+#reduce max 78 2
 
-def mss₂ := 
-  let f x y := max 0 (x + y) in maximum . scanr f 0 
+-- Não sei o erro de maximum ∘ (map list.sum ∘ segments), mas não avalia
 
+def mss₁ := 
+list.maximum ∘ map list.sum ∘ segments
 
-theorem mss_eq : mss₁ = mss₂ := sorry
+def mss₂ := list.maximum ∘ scanr (λ x y, max 0 (x+y)) 0 
 
+theorem mss_eq : mss₁ = mss₂ := 
+begin
+ funext xs,
+ rw mss₁,
+ rw mss₂,
+ induction xs with x xs h,
+ rw comp, dsimp,
+ rw segments, rw comp, dsimp, rw tails,
+ rw map, dsimp, rw map, dsimp, rw foldr, rw foldr, rw comp, dsimp, rw concat,
+ rw foldr, rw inits, rw foldr, dsimp, rw foldr, rw foldr, simp,
+ rw scanr, simp,
+
+ sorry
+end
 end mss
-
